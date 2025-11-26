@@ -12,13 +12,13 @@ import connectPgSimple from 'connect-pg-simple';
 import { PrismaClient } from '@prisma/client';
 
 // Import routes
-import authRoutes from '../src/routes/auth';
-import subjectRoutes from '../src/routes/subjects';
-import semesterRoutes from '../src/routes/semesters';
-import exportRoutes from '../src/routes/export';
+import authRoutes from '../src/routes/auth.js';
+import subjectRoutes from '../src/routes/subjects.js';
+import semesterRoutes from '../src/routes/semesters.js';
+import exportRoutes from '../src/routes/export.js';
 
 // Import Passport config
-import '../src/auth/passport-config';
+import '../src/auth/passport-config.js';
 
 dotenv.config();
 
