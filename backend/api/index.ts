@@ -68,7 +68,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-// Health check
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ 
     status: 'ok',
