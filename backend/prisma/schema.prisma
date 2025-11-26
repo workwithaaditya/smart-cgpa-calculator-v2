@@ -1,0 +1,111 @@
+// This is your Prisma schema file
+// Uses Neon PostgreSQL with NextAuth.js adapter (same as smart-attendance-management)
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// NextAuth.js required models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  accounts      Account[]
+  sessions      Session[]
+  subjects      Subject[]
+  semesters     Semester[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Semester model - for multi-semester CGPA tracking
+model Semester {
+  id            String    @id @default(cuid())
+  userId        String
+  name          String    // e.g., "Semester 5", "Fall 2024"
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  subjects      Subject[]
+  
+  @@index([userId])
+  @@index([userId, isActive])
+}
+
+// Subject model - stores subject details per user
+model Subject {
+  id            String    @id @default(cuid())
+  userId        String
+  semesterId    String?
+  
+  // Subject details
+  code          String
+  name          String
+  cie           Float     // Internal marks (out of 50)
+  see           Float     @default(0) // Semester-end marks (out of 100)
+  credits       Int
+  
+  // Calculated fields (cached for performance)
+  total         Float?    // CIE + SEE_scaled
+  gp            Int?      // Grade point
+  weighted      Float?    // GP × Credits
+  
+  // Metadata
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  
+  // Relations
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  semester      Semester? @relation(fields: [semesterId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([semesterId])
+  @@index([userId, semesterId])
+}
