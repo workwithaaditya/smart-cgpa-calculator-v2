@@ -312,9 +312,10 @@ router.post('/bulk', async (req, res) => {
       where: { userId }
     });
 
-    // Create all subjects
+    // Create all subjects with incremental timestamps to preserve order
+    const baseTime = Date.now();
     const createdSubjects = await prisma.$transaction(
-      subjects.map(sub => {
+      subjects.map((sub, index) => {
         const cieVal = parseFloat(sub.cie);
         const seeVal = sub.see !== undefined ? parseFloat(sub.see) : 0;
         const creditsVal = parseInt(sub.credits);
@@ -330,7 +331,8 @@ router.post('/bulk', async (req, res) => {
             credits: creditsVal,
             total: metrics.total,
             gp: metrics.gp,
-            weighted: metrics.weighted
+            weighted: metrics.weighted,
+            createdAt: new Date(baseTime + index)
           }
         });
       })
