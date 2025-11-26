@@ -335,6 +335,14 @@ router.post('/bulk', async (req, res) => {
         });
       })
     );
+    
+    res.status(201).json({ subjects: createdSubjects });
+  } catch (error) {
+    console.error('Error bulk creating subjects:', error);
+    res.status(500).json({ error: 'Failed to bulk create subjects' });
+  }
+});
+
 // POST recalculate cached metrics for all user subjects
 router.post('/recalculate', async (req, res) => {
   try {
@@ -355,12 +363,7 @@ router.post('/recalculate', async (req, res) => {
   }
 });
 
-    res.status(201).json({ subjects: createdSubjects });
-  } catch (error) {
-    console.error('Error bulk creating subjects:', error);
-    res.status(500).json({ error: 'Failed to bulk create subjects' });
-  }
-});
-
 export default router;
+
+
 
