@@ -288,7 +288,7 @@ router.post('/bulk', async (req, res) => {
     const userId = (req.user as any).id;
     const { subjects } = req.body;
 
-    if (!Array.isArray(subjects) || subjects.length === 0) {
+    if (!Array.isArray(subjects)) {
       return res.status(400).json({ error: 'Invalid subjects array' });
     }
 
@@ -311,6 +311,11 @@ router.post('/bulk', async (req, res) => {
     await prisma.subject.deleteMany({
       where: { userId }
     });
+
+    // If no subjects to create, return empty array
+    if (subjects.length === 0) {
+      return res.status(201).json({ subjects: [] });
+    }
 
     // Create all subjects with incremental timestamps to preserve order
     const baseTime = Date.now();
