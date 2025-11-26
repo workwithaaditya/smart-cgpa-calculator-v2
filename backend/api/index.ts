@@ -9,7 +9,7 @@ import passport from 'passport';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import connectPgSimple from 'connect-pg-simple';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '../src/lib/prisma.js';
 
 // Import routes
 import authRoutes from '../src/routes/auth.js';
@@ -23,7 +23,7 @@ import '../src/auth/passport-config.js';
 dotenv.config();
 
 const app = express();
-const prisma = new PrismaClient();
+
 const PgSession = connectPgSimple(session);
 
 // CORS configuration
