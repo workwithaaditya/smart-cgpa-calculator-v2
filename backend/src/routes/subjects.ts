@@ -307,6 +307,11 @@ router.post('/bulk', async (req, res) => {
       });
     }
 
+    // Delete existing subjects for this user first
+    await prisma.subject.deleteMany({
+      where: { userId }
+    });
+
     // Create all subjects
     const createdSubjects = await prisma.$transaction(
       subjects.map(sub => {
@@ -358,3 +363,4 @@ router.post('/recalculate', async (req, res) => {
 });
 
 export default router;
+
